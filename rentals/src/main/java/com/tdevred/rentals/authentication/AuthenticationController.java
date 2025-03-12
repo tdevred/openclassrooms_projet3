@@ -9,6 +9,12 @@ import com.tdevred.rentals.authentication.exceptions.BadLoginException;
 import com.tdevred.rentals.authentication.exceptions.NonUniqueUserIdentifierException;
 import com.tdevred.rentals.authentication.services.AuthenticationService;
 import com.tdevred.rentals.authentication.services.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +36,15 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
+    @Operation(summary = "Register")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully registered",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginResponse.class))}
+            ),
+            @ApiResponse(responseCode = "403", description = "The email address is already used", content = @Content())
+    })
     @PostMapping(value = "/register")
     public ResponseEntity<LoginResponse> register(@RequestBody @Valid RegisterUserDto registerUserDto) throws NonUniqueUserIdentifierException {
         User user = authenticationService.signup(registerUserDto);
@@ -42,6 +57,15 @@ public class AuthenticationController {
         return ResponseEntity.ok(loginResponse);
     }
 
+    @Operation(summary = "Login")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully logged in",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginResponse.class))}
+            ),
+            @ApiResponse(responseCode = "401", description = "The credentials are incorrect.", content = @Content())
+    })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody @Valid LoginUserDto loginUserDto) throws BadLoginException {
         authenticationService.authenticate(loginUserDto).orElseThrow(BadLoginException::new);
@@ -54,6 +78,16 @@ public class AuthenticationController {
         return ResponseEntity.ok(loginResponse);
     }
 
+    @Operation(summary = "Get logged in user info")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDto.class))}
+            ),
+            @ApiResponse(responseCode = "401", description = "Failed authentication", content = @Content())
+    })
+    @SecurityRequirement(name = "tokenAuth")
     @GetMapping("/me")
     public ResponseEntity<UserDto> displayUser(Principal user) {
         Optional<User> userTry = authenticationService.getUserByEmail(user.getName());
