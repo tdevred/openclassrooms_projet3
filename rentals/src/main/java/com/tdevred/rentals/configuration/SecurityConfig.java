@@ -59,6 +59,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/rentals").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/rentals").authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "/files/**").permitAll()
 
                         // SWAGGER
                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
