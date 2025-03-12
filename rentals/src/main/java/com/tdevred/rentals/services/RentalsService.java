@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RentalsService {
@@ -26,6 +27,10 @@ public class RentalsService {
 
     public List<Rental> getAllRentals() {
         return rentalRepository.findAll();
+    }
+
+    public Optional<Rental> getRentalById(int id) {
+        return rentalRepository.findById(id);
     }
 
     public void addRental(User user, String name, BigDecimal surface, BigDecimal price, MultipartFile picture, String description) {

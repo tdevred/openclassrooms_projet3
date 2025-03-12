@@ -56,6 +56,22 @@ public class RentalController {
         return new RentalDTO(rental.getId(), rental.getName(), rental.getSurface(), rental.getPrice(), rental.getPicture(), rental.getDescription(), rental.getOwnerId(), rental.getCreatedAt(), rental.getUpdatedAt());
     }
 
+    @Operation(summary = "Get a specified rental")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Rental retrieved",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = RentalDTO.class))}
+            ),
+            @ApiResponse(responseCode = "401", description = "Failed authentication", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Rental does not exist", content = @Content())
+    })
+    @SecurityRequirement(name = "tokenAuth")
+    @GetMapping(value = "/{id}", produces = "application/json")
+    public ResponseEntity<RentalDTO> getRentalById(@PathVariable int id) {
+        return rentalsService.getRentalById(id).map(this::convertToDTO).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @Operation(summary = "Add a rental")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
