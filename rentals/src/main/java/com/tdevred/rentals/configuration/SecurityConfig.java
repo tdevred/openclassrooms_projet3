@@ -64,6 +64,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/rentals/**").authenticated()
 
+                        .requestMatchers(HttpMethod.GET, "/api/user/**").authenticated()
+
                         .requestMatchers(HttpMethod.GET, "/files/**").permitAll()
 
                         // SWAGGER
