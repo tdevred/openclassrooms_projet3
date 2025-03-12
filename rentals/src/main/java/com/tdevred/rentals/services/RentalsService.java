@@ -2,7 +2,10 @@ package com.tdevred.rentals.services;
 
 import com.tdevred.rentals.authentication.entities.User;
 import com.tdevred.rentals.entities.Rental;
+import com.tdevred.rentals.presentation.forms.RentalModifyForm;
 import com.tdevred.rentals.repositories.RentalRepository;
+import com.tdevred.rentals.services.exceptions.NotAuthorizedToModifyRentalException;
+import com.tdevred.rentals.services.exceptions.UnknownRentalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,5 +54,32 @@ public class RentalsService {
             // if a problem happens in rental, delete the file
             storageService.delete(picture.getName());
         }
+    }
+
+    public void updateRental(User user, int rentalId, RentalModifyForm modifications) throws NotAuthorizedToModifyRentalException, UnknownRentalException {
+        Rental rental = rentalRepository.findById(rentalId).orElseThrow(com.tdevred.rentals.services.exceptions.UnknownRentalException::new);
+
+        if(rental.getOwnerId() != user.getId()) {
+            throw new NotAuthorizedToModifyRentalException();
+        }
+
+        // go through all modifications and make them
+        if(modifications.getDescription() != null) {
+            rental.setDescription(modifications.getDescription());
+        }
+
+        if(modifications.getName() != null) {
+            rental.setName(modifications.getName());
+        }
+
+        if(modifications.getPrice() != null) {
+            rental.setPrice(modifications.getPrice());
+        }
+
+        if(modifications.getDescription() != null) {
+            rental.setSurface(modifications.getSurface());
+        }
+
+        rentalRepository.save(rental);
     }
 }
